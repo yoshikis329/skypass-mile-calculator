@@ -3,35 +3,209 @@
     <title>大韓航空SKYPASSマイル単価計算ツール</title>
     <script src="./script.js" defer></script>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            color: #1c302e;
+            background: #edf2ef;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            --accent: #087f68;
+            --border: #cbd8d2;
+            --muted: #5b6b66;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-width: 320px;
+            padding: 40px 20px;
+        }
+
+        main {
+            width: min(100%, 760px);
+            margin: 0 auto;
+            padding: 32px;
+            border: 1px solid #d8e1dc;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 12px 32px rgb(27 55 45 / 7%);
+        }
+
+        h1 {
+            margin: 0 0 26px;
+            font-size: 24px;
+            line-height: 1.4;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px 16px;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            height: 46px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: #fff;
+            color: inherit;
+            font: inherit;
+            font-size: 16px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            outline: 3px solid rgb(8 127 104 / 15%);
+        }
+
+        button {
+            grid-column: 1 / -1;
+            min-height: 48px;
+            border: 0;
+            border-radius: 5px;
+            background: var(--accent);
+            color: #fff;
+            font: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #066b58;
+        }
+
+        #result {
+            margin-top: 28px;
+            overflow-x: auto;
+        }
+
+        #result table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        #result td {
+            overflow-wrap: anywhere;
+        }
+
+        #result td:first-child {
+            width: 58%;
+        }
+
+        #result td:last-child {
+            width: 42%;
+        }
+
+        @media (min-width: 900px) {
+            .form-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            main {
+                padding: 22px 18px;
+            }
+
+            h1 {
+                margin-bottom: 22px;
+                font-size: 21px;
+            }
+
+            .form-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 16px;
+            }
+
+            button {
+                grid-column: auto;
+            }
+        }
+    </style>
 </head>
 <body>
-    出発地：<input type="text" id="origin" placeholder="出発地の3レター" />
-    経由地：<input type="text" id="via" placeholder="経由地の3レター" />
-    目的地：<input type="text" id="destination" placeholder="到着地の3レター" />
-    航空会社：<select id="airline">
-        <option value="KE" selected>大韓航空</option>
-        <option value="DL">デルタ航空</option>
-        <option value="AR">アルゼンチン航空</option>
-        <option value="AM">アエロメヒコ航空</option>
-        <option value="UX">エア・ヨーロッパ</option>
-        <option value="AF">エールフランス航空</option>
-        <option value="CI">チャイナエアライン</option>
-        <option value="MU">中国東方航空</option>
-        <option value="GA">ガルーダ・インドネシア航空</option>
-        <option value="KQ">ケニア航空</option>
-        <option value="KL">KLMオランダ航空</option>
-        <option value="ME">ミドル・イースト航空</option>
-        <option value="SV">サウディア航空</option>
-        <option value="SK">スカンジナビア航空</option>
-        <option value="RO">タロム航空</option>
-        <option value="VN">ベトナム航空</option>
-        <option value="VS">ヴァージン・アトランティック航空</option>
-        <option value="MF">廈門航空</option>
-    </select>
-    客室クラス：<select id="cabin"></select>
-    予約クラス：<input type="text" id="reservationClass" placeholder="予約クラス" />
-    飛行機の金額：<input type="number" id="price" placeholder="飛行機の金額" />
-    <button onclick="calc()">計算</button>
-    <div id="result"></div>
+    <main>
+        <h1>SKYPASS マイル単価計算</h1>
+        <div class="form-grid">
+            <div class="field">
+                <label for="origin">出発地</label>
+                <input type="text" id="origin" placeholder="空港コード 例: NRT" autocomplete="off" autocapitalize="characters" />
+            </div>
+            <div class="field">
+                <label for="via">経由地</label>
+                <input type="text" id="via" placeholder="任意" autocomplete="off" autocapitalize="characters" />
+            </div>
+            <div class="field">
+                <label for="destination">目的地</label>
+                <input type="text" id="destination" placeholder="空港コード 例: ICN" autocomplete="off" autocapitalize="characters" />
+            </div>
+            <div class="field">
+                <label for="airline">航空会社</label>
+                <select id="airline">
+                    <option value="KE" selected>大韓航空</option>
+                    <option value="DL">デルタ航空</option>
+                    <option value="AR">アルゼンチン航空</option>
+                    <option value="AM">アエロメヒコ航空</option>
+                    <option value="UX">エア・ヨーロッパ</option>
+                    <option value="AF">エールフランス航空</option>
+                    <option value="CI">チャイナエアライン</option>
+                    <option value="MU">中国東方航空</option>
+                    <option value="GA">ガルーダ・インドネシア航空</option>
+                    <option value="KQ">ケニア航空</option>
+                    <option value="KL">KLMオランダ航空</option>
+                    <option value="ME">ミドル・イースト航空</option>
+                    <option value="SV">サウディア航空</option>
+                    <option value="SK">スカンジナビア航空</option>
+                    <option value="RO">タロム航空</option>
+                    <option value="VN">ベトナム航空</option>
+                    <option value="VS">ヴァージン・アトランティック航空</option>
+                    <option value="MF">廈門航空</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="cabin">客室クラス</label>
+                <select id="cabin"></select>
+            </div>
+            <div class="field">
+                <label for="reservationClass">予約クラス</label>
+                <input type="text" id="reservationClass" placeholder="例: Y" maxlength="1" autocomplete="off" autocapitalize="characters" />
+            </div>
+            <div class="field">
+                <label for="price">航空券の金額（円）</label>
+                <input type="number" id="price" placeholder="例: 50000" min="0" inputmode="numeric" />
+            </div>
+            <button type="button" onclick="calc()">計算</button>
+        </div>
+        <div id="result" aria-live="polite"></div>
+    </main>
 </body>
 </html>
