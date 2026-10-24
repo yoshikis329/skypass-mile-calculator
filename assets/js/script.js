@@ -87,7 +87,7 @@ const calc = async () => {
 
 const loadMileageRates = async () => {
     if (!mileageRatesPromise) {
-        mileageRatesPromise = fetch('./mileage-rates.json').then(response => {
+        mileageRatesPromise = fetch('./data/mileage-rates.json').then(response => {
             if (!response.ok) {
                 throw new Error('マイル加算率JSONを読み込めませんでした。');
             }
