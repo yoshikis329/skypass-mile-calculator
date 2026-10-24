@@ -1,16 +1,34 @@
 <html>
 <head>
     <title>大韓航空SKYPASSマイル単価計算ツール</title>
-    <script src="./script.js"></script>	
+    <script src="./script.js" defer></script>
     <meta charset="utf-8">
 </head>
 <body>
     出発地：<input type="text" id="origin" placeholder="出発地の3レター" />
-    経由地：<input type="text" id="origin" placeholder="経由地の3レター" />    
+    経由地：<input type="text" id="via" placeholder="経由地の3レター" />
     目的地：<input type="text" id="destination" placeholder="到着地の3レター" />
     航空会社：<select id="airline">
         <option value="KE" selected>大韓航空</option>
+        <option value="DL">デルタ航空</option>
+        <option value="AR">アルゼンチン航空</option>
+        <option value="AM">アエロメヒコ航空</option>
+        <option value="UX">エア・ヨーロッパ</option>
+        <option value="AF">エールフランス航空</option>
+        <option value="CI">チャイナエアライン</option>
+        <option value="MU">中国東方航空</option>
+        <option value="GA">ガルーダ・インドネシア航空</option>
+        <option value="KQ">ケニア航空</option>
+        <option value="KL">KLMオランダ航空</option>
+        <option value="ME">ミドル・イースト航空</option>
+        <option value="SV">サウディア航空</option>
+        <option value="SK">スカンジナビア航空</option>
+        <option value="RO">タロム航空</option>
+        <option value="VN">ベトナム航空</option>
+        <option value="VS">ヴァージン・アトランティック航空</option>
+        <option value="MF">廈門航空</option>
     </select>
+    客室クラス：<select id="cabin"></select>
     予約クラス：<input type="text" id="reservationClass" placeholder="予約クラス" />
     飛行機の金額：<input type="number" id="price" placeholder="飛行機の金額" />
     <button onclick="calc()">計算</button>
