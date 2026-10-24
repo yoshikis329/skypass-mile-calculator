@@ -1,0 +1,19 @@
+<html>
+<head>
+    <title>大韓航空SKYPASSマイル単価計算ツール</title>
+    <script src="./script.js"></script>	
+    <meta charset="utf-8">
+</head>
+<body>
+    出発地：<input type="text" id="origin" placeholder="出発地の3レター" />
+    経由地：<input type="text" id="origin" placeholder="経由地の3レター" />    
+    目的地：<input type="text" id="destination" placeholder="到着地の3レター" />
+    航空会社：<select id="airline">
+        <option value="KE" selected>大韓航空</option>
+    </select>
+    予約クラス：<input type="text" id="reservationClass" placeholder="予約クラス" />
+    飛行機の金額：<input type="number" id="price" placeholder="飛行機の金額" />
+    <button onclick="calc()">計算</button>
+    <div id="result"></div>
+</body>
+</html>
