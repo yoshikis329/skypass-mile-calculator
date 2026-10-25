@@ -10,18 +10,33 @@
     <main>
         <h1>SKYPASS マイル単価計算</h1>
         <div class="form-grid">
-            <div class="field">
-                <label for="origin">出発地</label>
-                <input type="text" id="origin" placeholder="空港コード 例: NRT" autocomplete="off" autocapitalize="characters" />
-            </div>
-            <div class="field">
-                <label for="via">経由地</label>
-                <input type="text" id="via" placeholder="任意" autocomplete="off" autocapitalize="characters" />
-            </div>
-            <div class="field">
-                <label for="destination">目的地</label>
-                <input type="text" id="destination" placeholder="空港コード 例: ICN" autocomplete="off" autocapitalize="characters" />
-            </div>
+            <fieldset class="trip-group outbound-group">
+                <legend>往路</legend>
+                <div class="field">
+                    <label for="origin">出発地</label>
+                    <input type="text" id="origin" placeholder="空港コード 例: NRT" autocomplete="off" autocapitalize="characters" />
+                </div>
+                <div class="field">
+                    <label for="via">経由地</label>
+                    <input type="text" id="via" placeholder="任意" autocomplete="off" autocapitalize="characters" />
+                </div>
+                <div class="field">
+                    <label for="destination">目的地</label>
+                    <input type="text" id="destination" placeholder="空港コード 例: ICN" autocomplete="off" autocapitalize="characters" />
+                </div>
+                <div class="field">
+                    <label for="outboundReservationClass">予約クラス</label>
+                    <input type="text" id="outboundReservationClass" placeholder="例: Y" maxlength="1" autocomplete="off" autocapitalize="characters" />
+                </div>
+            </fieldset>
+            <fieldset class="trip-group return-group">
+                <legend>復路</legend>
+                <p class="trip-note">経路は往路の逆順です。経由地がある場合は、経由地を通って戻る経路として計算します。</p>
+                <div class="field">
+                    <label for="returnReservationClass">予約クラス</label>
+                    <input type="text" id="returnReservationClass" placeholder="例: Y" maxlength="1" autocomplete="off" autocapitalize="characters" />
+                </div>
+            </fieldset>
             <div class="field">
                 <label for="airline">航空会社</label>
                 <select id="airline">
@@ -50,11 +65,7 @@
                 <select id="cabin"></select>
             </div>
             <div class="field">
-                <label for="reservationClass">予約クラス</label>
-                <input type="text" id="reservationClass" placeholder="例: Y" maxlength="1" autocomplete="off" autocapitalize="characters" />
-            </div>
-            <div class="field">
-                <label for="price">航空券の金額（円）</label>
+                <label for="price">往復航空券の金額（円）</label>
                 <input type="number" id="price" placeholder="例: 50000" min="0" inputmode="numeric" />
             </div>
             <button type="button" onclick="calc()">計算</button>

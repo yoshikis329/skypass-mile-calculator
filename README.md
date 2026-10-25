@@ -25,4 +25,6 @@ GitHub Pages will publish the site at `https://yoshikis329.github.io/skypass-mil
 
 All local assets use relative paths, so the app works from a project-site subpath. Airport coordinates are fetched from OpenFlights at runtime, so users need an internet connection.
 
+Enter separate reservation classes for the outbound and return flights. The return route reverses the outbound route (including any via airport), and the fare amount is treated as the round-trip total.
+
 Mileage rates are maintained in `data/mileage-rates.json` and reference the [Korean Air SkyTeam earning guide](https://www.koreanair.com/contents/skypass/earn-miles/partner-airlines/skyteam).

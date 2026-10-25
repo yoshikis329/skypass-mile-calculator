@@ -19,7 +19,8 @@ const calc = async () => {
     const origin = document.getElementById('origin').value.trim().toUpperCase();
     const via = document.getElementById('via').value.trim().toUpperCase();
     const destination = document.getElementById('destination').value.trim().toUpperCase();
-    const reservationClass = document.getElementById('reservationClass').value.trim().toUpperCase();
+    const outboundReservationClass = document.getElementById('outboundReservationClass').value.trim().toUpperCase();
+    const returnReservationClass = document.getElementById('returnReservationClass').value.trim().toUpperCase();
     const airlineCode = document.getElementById('airline').value;
     const cabin = document.getElementById('cabin').value;
     const price = Number(document.getElementById('price').value);
@@ -31,8 +32,8 @@ const calc = async () => {
         showMessage('選択した航空会社の積算率データが登録されていないため、計算できません。');
         return;
     }
-    if (!origin || !destination || !reservationClass || !cabin || document.getElementById('price').value === '') {
-        showMessage('出発地、目的地、客室クラス、予約クラス、飛行機の金額を入力してください。');
+    if (!origin || !destination || !outboundReservationClass || !returnReservationClass || !cabin || document.getElementById('price').value === '') {
+        showMessage('出発地、目的地、客室クラス、往復それぞれの予約クラス、往復航空券の金額を入力してください。');
         return;
     }
     if (!/^[A-Z]{3}$/.test(origin) || (via && !/^[A-Z]{3}$/.test(via)) || !/^[A-Z]{3}$/.test(destination)) {
@@ -56,34 +57,62 @@ const calc = async () => {
         if (!cabinRates) {
             throw new Error(`${airline.name}の${cabinLabels[cabin] || cabin}の積算率データは登録されていません。`);
         }
-        if (!Object.hasOwn(cabinRates, reservationClass)) {
-            throw new Error(`${airline.name}の${cabinLabels[cabin]}、予約クラス「${reservationClass}」の積算率は登録されていません。路線などの条件により率が異なる場合があります。`);
-        }
-        const rate = cabinRates[reservationClass];
-        if (rate === 0) {
-            throw new Error('この予約クラスはマイル積算対象外です。');
-        }
-
-        const codes = via ? [origin, via, destination] : [origin, destination];
-        const missingCode = codes.find(code => !airports.has(code));
+        const outboundRate = getReservationClassRate(cabinRates, outboundReservationClass, '往路', airline.name, cabinLabels[cabin]);
+        const returnRate = getReservationClassRate(cabinRates, returnReservationClass, '復路', airline.name, cabinLabels[cabin]);
+        const outboundCodes = via ? [origin, via, destination] : [origin, destination];
+        const missingCode = outboundCodes.find(code => !airports.has(code));
         if (missingCode) {
             throw new Error(`空港コード「${missingCode}」が見つかりません。`);
         }
 
-        const segments = codes.slice(1).map((code, index) => ({
-            from: codes[index],
-            to: code,
-            miles: Math.round(distanceInMiles(airports.get(codes[index]), airports.get(code)))
-        }));
-        const totalDistance = segments.reduce((sum, segment) => sum + segment.miles, 0);
-        const earnedMiles = Math.floor(totalDistance * rate);
+        const outboundSegments = createSegments(outboundCodes, airports);
+        const returnSegments = createSegments([...outboundCodes].reverse(), airports);
+        const outboundDistance = totalSegmentMiles(outboundSegments);
+        const returnDistance = totalSegmentMiles(returnSegments);
+        const totalDistance = outboundDistance + returnDistance;
+        const outboundEarnedMiles = Math.floor(outboundDistance * outboundRate);
+        const returnEarnedMiles = Math.floor(returnDistance * returnRate);
+        const earnedMiles = outboundEarnedMiles + returnEarnedMiles;
         const pricePerMile = earnedMiles > 0 ? price / earnedMiles : null;
 
-        renderResult(segments, totalDistance, airline.name, cabinLabels[cabin], reservationClass, rate, earnedMiles, pricePerMile);
+        renderResult(
+            outboundSegments,
+            returnSegments,
+            totalDistance,
+            airline.name,
+            cabinLabels[cabin],
+            outboundReservationClass,
+            outboundRate,
+            outboundEarnedMiles,
+            returnReservationClass,
+            returnRate,
+            returnEarnedMiles,
+            earnedMiles,
+            pricePerMile
+        );
     } catch (error) {
         showMessage(error.message || '空港データを取得できませんでした。通信環境を確認して再度お試しください。');
     }
 };
+
+const getReservationClassRate = (cabinRates, reservationClass, direction, airlineName, cabinName) => {
+    if (!Object.hasOwn(cabinRates, reservationClass)) {
+        throw new Error(`${airlineName}の${cabinName}、${direction}予約クラス「${reservationClass}」の積算率は登録されていません。路線などの条件により率が異なる場合があります。`);
+    }
+    const rate = cabinRates[reservationClass];
+    if (rate === 0) {
+        throw new Error(`${direction}の予約クラス「${reservationClass}」はマイル積算対象外です。`);
+    }
+    return rate;
+};
+
+const createSegments = (codes, airports) => codes.slice(1).map((code, index) => ({
+    from: codes[index],
+    to: code,
+    miles: Math.round(distanceInMiles(airports.get(codes[index]), airports.get(code)))
+}));
+
+const totalSegmentMiles = segments => segments.reduce((sum, segment) => sum + segment.miles, 0);
 
 const loadMileageRates = async () => {
     if (!mileageRatesPromise) {
@@ -193,29 +222,79 @@ const distanceInMiles = (from, to) => {
     return 2 * EARTH_RADIUS_MILES * Math.asin(Math.sqrt(value));
 };
 
-const renderResult = (segments, totalDistance, airlineName, cabinName, reservationClass, rate, earnedMiles, pricePerMile) => {
+const renderResult = (
+    outboundSegments,
+    returnSegments,
+    totalDistance,
+    airlineName,
+    cabinName,
+    outboundReservationClass,
+    outboundRate,
+    outboundEarnedMiles,
+    returnReservationClass,
+    returnRate,
+    returnEarnedMiles,
+    earnedMiles,
+    pricePerMile
+) => {
     const result = document.getElementById('result');
     result.textContent = '';
 
     const table = document.createElement('table');
     table.style.borderCollapse = 'collapse';
-    const rows = [
-        ['航空会社', airlineName],
-        ['客室クラス', cabinName],
-        ...segments.map(segment => [`${segment.from} → ${segment.to} の区間マイル`, `${segment.miles.toLocaleString()} マイル`]),
-        ['合計区間マイル', `${totalDistance.toLocaleString()} マイル`],
-        [`予約クラス ${reservationClass} の積算率`, `${(rate * 100).toFixed(2).replace(/\.?0+$/, '')}%`],
-        ['獲得マイル', `${earnedMiles.toLocaleString()} マイル`],
-        ['マイル単価', pricePerMile === null ? '計算できません' : `${pricePerMile.toFixed(2)} 円/マイル`]
+    const sections = [
+        {
+            title: '航空券情報',
+            className: 'result-section--info',
+            rows: [
+                ['航空会社', airlineName],
+                ['客室クラス', cabinName]
+            ]
+        },
+        {
+            title: `往路（予約クラス ${outboundReservationClass}）`,
+            className: 'result-section--outbound',
+            rows: [
+                [`予約クラス ${outboundReservationClass} の積算率`, `${(outboundRate * 100).toFixed(2).replace(/\.?0+$/, '')}%`],
+                ...outboundSegments.map(segment => [`${segment.from} → ${segment.to} の区間マイル`, `${segment.miles.toLocaleString()} マイル`]),
+                ['往路の獲得マイル', `${outboundEarnedMiles.toLocaleString()} マイル`]
+            ]
+        },
+        {
+            title: `復路（予約クラス ${returnReservationClass}）`,
+            className: 'result-section--return',
+            rows: [
+                [`予約クラス ${returnReservationClass} の積算率`, `${(returnRate * 100).toFixed(2).replace(/\.?0+$/, '')}%`],
+                ...returnSegments.map(segment => [`${segment.from} → ${segment.to} の区間マイル`, `${segment.miles.toLocaleString()} マイル`]),
+                ['復路の獲得マイル', `${returnEarnedMiles.toLocaleString()} マイル`]
+            ]
+        },
+        {
+            title: '往復合計',
+            className: 'result-section--total',
+            rows: [
+                ['合計区間マイル', `${totalDistance.toLocaleString()} マイル`],
+                ['往復の獲得マイル合計', `${earnedMiles.toLocaleString()} マイル`],
+                ['マイル単価', pricePerMile === null ? '計算できません' : `${pricePerMile.toFixed(2)} 円/マイル`]
+            ]
+        }
     ];
 
-    for (const [label, value] of rows) {
-        const row = table.insertRow();
-        for (const text of [label, value]) {
-            const cell = row.insertCell();
-            cell.textContent = text;
-            cell.style.border = '1px solid black';
-            cell.style.padding = '8px';
+    for (const section of sections) {
+        const headingRow = table.insertRow();
+        headingRow.className = `result-section ${section.className}`;
+        const heading = document.createElement('th');
+        heading.colSpan = 2;
+        heading.scope = 'colgroup';
+        heading.textContent = section.title;
+        headingRow.appendChild(heading);
+
+        for (const [label, value] of section.rows) {
+            const row = table.insertRow();
+            for (const text of [label, value]) {
+                const cell = row.insertCell();
+                cell.textContent = text;
+            }
         }
     }
     result.appendChild(table);
