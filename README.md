@@ -1,30 +1,18 @@
 # SKYPASS Mile Calculator
+https://yoshikis329.github.io/skypass-mile-calculator/
 
-## GitHub Pages
+大韓航空のSKYPASSで獲得できるマイル数とマイル単価を計算するツールです。
 
-This is a static site and does not require a build step or server-side runtime.
+## マイルの計算方法
 
-1. Push this repository to GitHub.
-2. Open **Settings > Pages** in the repository.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select the `main` branch and `/(root)`, then save.
+OpenFlightsの空港データから取得した空港座標を使って各区間の大圏距離を算出し、区間ごとに四捨五入して区間マイルとします。経由地を入力した場合は、出発地から経由地、経由地から目的地までの各区間を計算します。復路は往路の経路を逆順にして計算します。
 
-GitHub Pages will publish the site at https://yoshikis329.github.io/skypass-mile-calculator/.
+往路・復路それぞれの合計区間マイルに、航空会社と予約クラスに応じた積算率を掛け、小数点以下を切り捨てます。往復の獲得マイルを合算し、往復航空券の金額をその合計で割ってマイル単価（円/マイル）を算出します。
 
-## Project structure
+ここで算出する区間マイルはIATAのTPM（Ticketed Point Mileage）とは異なります。そのため、実際にSKYPASSへ積算されるマイル数と異なる場合があります。
 
-```text
-.
-├── index.html
-├── assets/
-│   ├── css/style.css
-│   └── js/script.js
-├── data/mileage-rates.json
-└── README.md
-```
+## マイル加算率について
 
-All local assets use relative paths, so the app works from a project-site subpath. Airport coordinates are fetched from OpenFlights at runtime, so users need an internet connection.
+航空会社・客室クラス・予約クラスごとの積算率を [`data/mileage-rates.json`](./data/mileage-rates.json) に登録しています。加算率は大韓航空の[提携航空会社向けマイル積算案内](https://www.koreanair.com/contents/skypass/earn-miles/partner-airlines/skyteam)を参照しています（最終確認日: 2026年10月24日）。
 
-Enter separate reservation classes for the outbound and return flights. The return route reverses the outbound route (including any via airport), and the fare amount is treated as the round-trip total.
-
-Mileage rates are maintained in `data/mileage-rates.json` and reference the [Korean Air SkyTeam earning guide](https://www.koreanair.com/contents/skypass/earn-miles/partner-airlines/skyteam).
+積算率や積算対象となる予約クラスは変更されることがあり、路線などの条件によって異なる場合もあります。最新の条件は航空会社の案内をご確認ください。データに登録されていない予約クラスは計算できません。

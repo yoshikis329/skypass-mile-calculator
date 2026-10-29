@@ -9,6 +9,13 @@
 <body>
     <main>
         <h1>SKYPASS マイル単価計算</h1>
+        <p class="calculation-warning">※ 出力される区間マイルはIATAのTPM（Ticketed Point Mileage）とは異なるため、実際のSKYPASS積算マイルと少し異なります。</p>
+        <fieldset class="calculation-note">
+            <legend>区間マイル計算方法</legend>
+            <p>区間マイルは空港の座標から大圏距離を算出し、区間ごとに四捨五入しています。</p>
+            <p>獲得マイルは、往路・復路それぞれの合計区間マイルに航空会社・予約クラスごとの積算率を掛け、小数点以下を切り捨てて計算します。</p>
+            <p>マイル単価は「往復航空券の金額 ÷ 往復の獲得マイル」です。</p>
+        </fieldset>
         <div class="form-grid">
             <fieldset class="trip-group outbound-group">
                 <legend>往路</legend>

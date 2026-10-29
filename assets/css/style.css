@@ -31,9 +31,46 @@ main {
 }
 
 h1 {
-    margin: 0 0 26px;
+    margin: 0 0 12px;
     font-size: 24px;
     line-height: 1.4;
+}
+
+.calculation-note {
+    margin: 0 0 26px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #f9fbfa;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.calculation-note legend {
+    padding: 0 8px;
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.calculation-note p {
+    margin: 0 0 8px;
+}
+
+.calculation-note p:last-child {
+    margin-bottom: 0;
+}
+
+.calculation-warning {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    border-left: 4px solid #c47a12;
+    border-radius: 4px;
+    background: #fff7e8;
+    color: #70480e;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 .form-grid {
@@ -199,8 +236,12 @@ button:hover {
     }
 
     h1 {
-        margin-bottom: 22px;
+        margin-bottom: 10px;
         font-size: 21px;
+    }
+
+    .calculation-note {
+        margin-bottom: 22px;
     }
 
     .form-grid {
