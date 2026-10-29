@@ -9,7 +9,7 @@ This is a static site and does not require a build step or server-side runtime.
 3. Under **Build and deployment**, choose **Deploy from a branch**.
 4. Select the `main` branch and `/(root)`, then save.
 
-GitHub Pages will publish the site at `https://yoshikis329.github.io/skypass-mile-calculator/`.
+GitHub Pages will publish the site at https://yoshikis329.github.io/skypass-mile-calculator/.
 
 ## Project structure
 
