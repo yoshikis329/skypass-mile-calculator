@@ -12,6 +12,7 @@ const cabinLabels = {
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('airline').addEventListener('change', updateCabinOptions);
+    document.getElementById('cabin').addEventListener('change', updateReservationClassOptions);
     updateCabinOptions();
 });
 
@@ -19,8 +20,8 @@ const calc = async () => {
     const origin = document.getElementById('origin').value.trim().toUpperCase();
     const via = document.getElementById('via').value.trim().toUpperCase();
     const destination = document.getElementById('destination').value.trim().toUpperCase();
-    const outboundReservationClass = document.getElementById('outboundReservationClass').value.trim().toUpperCase();
-    const returnReservationClass = document.getElementById('returnReservationClass').value.trim().toUpperCase();
+    const outboundReservationClass = document.getElementById('outboundReservationClass').value;
+    const returnReservationClass = document.getElementById('returnReservationClass').value;
     const airlineCode = document.getElementById('airline').value;
     const cabin = document.getElementById('cabin').value;
     const price = Number(document.getElementById('price').value);
@@ -152,8 +153,35 @@ const updateCabinOptions = async () => {
         } else {
             cabinSelect.disabled = false;
         }
+        updateReservationClassOptions();
     } catch (error) {
         cabinSelect.disabled = true;
+        updateReservationClassOptions();
+        showMessage(error.message || 'マイル加算率を読み込めませんでした。');
+    }
+};
+
+const updateReservationClassOptions = async () => {
+    const airlineCode = document.getElementById('airline').value;
+    const cabin = document.getElementById('cabin').value;
+    const reservationClassSelects = [
+        document.getElementById('outboundReservationClass'),
+        document.getElementById('returnReservationClass')
+    ];
+
+    try {
+        const rateData = await loadMileageRates();
+        const reservationRates = rateData.airlines[airlineCode]?.cabins[cabin] || {};
+        for (const select of reservationClassSelects) {
+            select.replaceChildren(new Option('選択してください', ''));
+            for (const [reservationClass, rate] of Object.entries(reservationRates)) {
+                const label = rate === 0
+                    ? `${reservationClass}（積算対象外）`
+                    : `${reservationClass}（${(rate * 100).toFixed(2).replace(/\.?0+$/, '')}%）`;
+                select.add(new Option(label, reservationClass));
+            }
+        }
+    } catch (error) {
         showMessage(error.message || 'マイル加算率を読み込めませんでした。');
     }
 };

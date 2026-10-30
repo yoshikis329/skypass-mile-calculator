@@ -33,7 +33,9 @@
                 </div>
                 <div class="field">
                     <label for="outboundReservationClass">予約クラス</label>
-                    <input type="text" id="outboundReservationClass" placeholder="例: Y" maxlength="1" autocomplete="off" autocapitalize="characters" />
+                    <select id="outboundReservationClass">
+                        <option value="">選択してください</option>
+                    </select>
                 </div>
             </fieldset>
             <fieldset class="trip-group return-group">
@@ -41,7 +43,9 @@
                 <p class="trip-note">経路は往路の逆順です。経由地がある場合は、経由地を通って戻る経路として計算します。</p>
                 <div class="field">
                     <label for="returnReservationClass">予約クラス</label>
-                    <input type="text" id="returnReservationClass" placeholder="例: Y" maxlength="1" autocomplete="off" autocapitalize="characters" />
+                    <select id="returnReservationClass">
+                        <option value="">選択してください</option>
+                    </select>
                 </div>
             </fieldset>
             <div class="field">
